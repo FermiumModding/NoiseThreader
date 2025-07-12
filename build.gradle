@@ -27,6 +27,8 @@ dependencies {
     annotationProcessor "org.spongepowered:mixin:${mixin_version}:processor"
 
     implementation fg.deobf("curse.maven:fermiumbooter-${fermiumbooter_version}")
+
+    implementation fg.deobf("curse.maven:bettercaves-${bettercaves_version}")
     implementation fg.deobf("curse.maven:openterraingenerator-${openterraingenerator_version}")
 }
 

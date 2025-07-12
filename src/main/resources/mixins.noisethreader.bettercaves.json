@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "noisethreader.mixin",
+  "refmap": "mixins.noisethreader.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.8",
+  "mixins": [
+    "bettercaves.CaveCarverControllerMixin"
+  ],
+  "injectors": {
+    "maxShiftBy": 10
+  }
+}

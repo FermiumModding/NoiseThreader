@@ -1,6 +1,7 @@
 package noisethreader;
 
 import java.util.Map;
+
 import fermiumbooter.FermiumRegistryAPI;
 import net.minecraftforge.fml.common.Loader;
 import org.spongepowered.asm.launch.MixinBootstrap;
@@ -14,6 +15,7 @@ public class NoiseThreaderPlugin implements IFMLLoadingPlugin {
 		
 		FermiumRegistryAPI.enqueueMixin(false, "mixins.noisethreader.vanilla.json");
 		FermiumRegistryAPI.enqueueMixin(true, "mixins.noisethreader.otg.json", () -> Loader.isModLoaded("openterraingenerator"));
+		FermiumRegistryAPI.enqueueMixin(true, "mixins.noisethreader.bettercaves.json", () -> Loader.isModLoaded("bettercaves"));
 	}
 
 	@Override

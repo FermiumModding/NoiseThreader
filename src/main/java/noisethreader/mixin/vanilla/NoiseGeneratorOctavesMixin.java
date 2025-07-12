@@ -22,6 +22,9 @@ public abstract class NoiseGeneratorOctavesMixin implements INoiseGeneratorOctav
 	@Shadow @Final private NoiseGeneratorImproved[] generatorCollection;
 	
 	@Unique
+	private final VanillaNoiseHandler noisethreader$vanillaNoiseHandler = new VanillaNoiseHandler();
+	
+	@Unique
 	private int noisethreader$octaveSplitAmount = 0;
 	
 	@Inject(
@@ -52,7 +55,7 @@ public abstract class NoiseGeneratorOctavesMixin implements INoiseGeneratorOctav
 		if(this.noisethreader$octaveSplitAmount <= 0 || (this.octaves * xSize * ySize * zSize) / this.noisethreader$octaveSplitAmount < 550) {
 			return this.noisethreader$generateNoiseOctavesVanilla(noiseArray, xOffset, yOffset, zOffset, xSize, ySize, zSize, xScale, yScale, zScale);
 		}
-		else return VanillaNoiseHandler.generateVanillaNoiseOctaves((NoiseGeneratorOctaves)(Object)this, noiseArray, xOffset, yOffset, zOffset, xSize, ySize, zSize, xScale, yScale, zScale, this.octaves, 2, this.noisethreader$octaveSplitAmount);
+		else return this.noisethreader$vanillaNoiseHandler.generateVanillaNoiseOctaves((NoiseGeneratorOctaves)(Object)this, noiseArray, xOffset, yOffset, zOffset, xSize, ySize, zSize, xScale, yScale, zScale, this.octaves, 2, this.noisethreader$octaveSplitAmount);
 	}
 	
 	/**

@@ -23,6 +23,9 @@ public abstract class NoiseGeneratorPerlinOctavesMixin implements INoiseGenerato
 	@Shadow(remap = false) private NoiseGeneratorPerlin[] noiseArray;
 	
 	@Unique
+	private final OTGNoiseHandler noisethreader$otgNoiseHandler = new OTGNoiseHandler();
+	
+	@Unique
 	private int noisethreader$octaveSplitAmount = 0;
 	
 	@Inject(
@@ -54,7 +57,7 @@ public abstract class NoiseGeneratorPerlinOctavesMixin implements INoiseGenerato
 		if(this.noisethreader$octaveSplitAmount <= 0 || (this.numOctaves * xSize * ySize * zSize) / this.noisethreader$octaveSplitAmount < 550) {
 			return this.noisethreader$generateNoiseOctavesOTG(doubleArray, xOffset, yOffset, zOffset, xSize, ySize, zSize, xScale, yScale, zScale);
 		}
-		else return OTGNoiseHandler.generateOTGNoiseOctaves((NoiseGeneratorPerlinOctaves)(Object)this, doubleArray, xOffset, yOffset, zOffset, xSize, ySize, zSize, xScale, yScale, zScale, this.numOctaves, 2, this.noisethreader$octaveSplitAmount);
+		else return this.noisethreader$otgNoiseHandler.generateOTGNoiseOctaves((NoiseGeneratorPerlinOctaves)(Object)this, doubleArray, xOffset, yOffset, zOffset, xSize, ySize, zSize, xScale, yScale, zScale, this.numOctaves, 2, this.noisethreader$octaveSplitAmount);
 	}
 	
 	/**
