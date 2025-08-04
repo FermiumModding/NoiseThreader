@@ -1,8 +1,6 @@
 package noisethreader.mixin.bettercaves;
 
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
-import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
-import com.yungnickyoung.minecraft.bettercaves.noise.NoiseCube;
 import com.yungnickyoung.minecraft.bettercaves.world.CaveCarverController;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverNoiseRange;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarver;
@@ -13,7 +11,10 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraftforge.common.BiomeDictionary;
 import noisethreader.NoiseThreader;
-import noisethreader.util.ColumnCarverHolder;
+import noisethreader.util.bettercaves.ColumnCarverHolder;
+import noisethreader.util.bettercaves.ICaveCarver;
+import noisethreader.util.bettercaves.NoiseColumnNew;
+import noisethreader.util.bettercaves.NoiseCubeNew;
 import org.apache.logging.log4j.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -23,6 +24,10 @@ import org.spongepowered.asm.mixin.Unique;
 import java.util.List;
 import java.util.stream.IntStream;
 
+/**
+ * Modified from https://github.com/YUNG-GANG/YUNGs-Better-Caves/blob/1.12.2/src/main/java/com/yungnickyoung/minecraft/bettercaves/world/CaveCarverController.java licensed LGPLv3
+ * Modified to multithread and improve performance (Fix unneeded boxing/lists/hashing/etc)
+ */
 @Mixin(CaveCarverController.class)
 public abstract class CaveCarverControllerMixin {
 	
@@ -79,8 +84,8 @@ public abstract class CaveCarverControllerMixin {
 						ColumnCarverHolder columnCarverHolder = this.noisethreader$columnCarverHolders[subX][subZ][offsetX][offsetZ];
 						if(columnCarverHolder == null) continue;
 						//Reconvene and carve in correct order just incase
-						((CaveCarver)this.noiseRanges.get(columnCarverHolder.carverIndex).getCarver())
-								.carveColumn(primer,
+						((ICaveCarver)this.noiseRanges.get(columnCarverHolder.carverIndex).getCarver())
+								.noisethreader$carveColumnNew(primer,
 											 columnCarverHolder.colPos,
 											 columnCarverHolder.topY,
 											 columnCarverHolder.noiseColumn,
@@ -118,8 +123,10 @@ public abstract class CaveCarverControllerMixin {
 		int startZ = subZ * 4;
 		int endX = startX + 4 - 1;
 		int endZ = startZ + 4 - 1;
-		BlockPos startPos = new BlockPos(chunkX * 16 + startX, 1, chunkZ * 16 + startZ);
-		BlockPos endPos = new BlockPos(chunkX * 16 + endX, 1, chunkZ * 16 + endZ);
+		int startPosX = chunkX * 16 + startX;
+		int startPosZ = chunkZ * 16 + startZ;
+		int endPosX = chunkX * 16 + endX;
+		int endPosZ = chunkZ * 16 + endZ;
 		
 		int maxHeight = 0;
 		if(!isOverrideSurfaceDetectionEnabled) {
@@ -133,7 +140,7 @@ public abstract class CaveCarverControllerMixin {
 			}
 		}
 		//NoiseCube isn't actually used outside of this section of iteration, so does not need to be stored in noiseRanges
-		NoiseCube[] noiseCubes = new NoiseCube[this.noiseRanges.size()];
+		NoiseCubeNew[] noiseCubes = new NoiseCubeNew[this.noiseRanges.size()];
 		for(int offsetX = 0; offsetX < 4; offsetX++) {
 			for(int offsetZ = 0; offsetZ < 4; offsetZ++) {
 				int localX = startX + offsetX;
@@ -168,9 +175,9 @@ public abstract class CaveCarverControllerMixin {
 							maxHeight = 128;
 						}
 						if(noiseCubes[rangeIndex] == null) {
-							noiseCubes[rangeIndex] = carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight);
+							noiseCubes[rangeIndex] = ((ICaveCarver)carver).noisethreader$getNoiseGenNew().interpolateNoiseCube(startPosX, startPosZ, endPosX, endPosZ, bottomY, maxHeight);
 						}
-						NoiseColumn noiseColumn = noiseCubes[rangeIndex].get(offsetX).get(offsetZ);
+						NoiseColumnNew noiseColumn = noiseCubes[rangeIndex].getArray(offsetX)[offsetZ];
 						//Store the needed data for carving, only carve after multithreading finishes
 						this.noisethreader$columnCarverHolders[subX][subZ][offsetX][offsetZ] = new ColumnCarverHolder(rangeIndex, colPos, topY, noiseColumn, liquidBlock, flooded);
 						break;
@@ -191,15 +198,16 @@ public abstract class CaveCarverControllerMixin {
 		boolean shouldCarveVanillaCaves = false;
 		boolean[][] vanillaCarvingMask = new boolean[16][16];
 		
-		for(int subX = 0; subX < 4; ++subX) {
-			for(int subZ = 0; subZ < 4; ++subZ) {
+		for(int subX = 0; subX < 4; subX++) {
+			for(int subZ = 0; subZ < 4; subZ++) {
 				int startX = subX * 4;
 				int startZ = subZ * 4;
 				int endX = startX + 4 - 1;
 				int endZ = startZ + 4 - 1;
-				BlockPos startPos = new BlockPos(chunkX * 16 + startX, 1, chunkZ * 16 + startZ);
-				BlockPos endPos = new BlockPos(chunkX * 16 + endX, 1, chunkZ * 16 + endZ);
-				this.noiseRanges.forEach((rangex) -> rangex.setNoiseCube(null));
+				int startPosX = chunkX * 16 + startX;
+				int startPosZ = chunkZ * 16 + startZ;
+				int endPosX = chunkX * 16 + endX;
+				int endPosZ = chunkZ * 16 + endZ;
 				int maxHeight = 0;
 				if(!isOverrideSurfaceDetectionEnabled) {
 					for(int x = startX; x < endX; x++) {
@@ -211,8 +219,10 @@ public abstract class CaveCarverControllerMixin {
 						maxHeight = Math.max(maxHeight, range.getCarver().getTopY());
 					}
 				}
-				for(int offsetX = 0; offsetX < 4; ++offsetX) {
-					for(int offsetZ = 0; offsetZ < 4; ++offsetZ) {
+				//NoiseCube isn't actually used outside of this section of iteration, so does not need to be stored in noiseRanges
+				NoiseCubeNew[] noiseCubes = new NoiseCubeNew[this.noiseRanges.size()];
+				for(int offsetX = 0; offsetX < 4; offsetX++) {
+					for(int offsetZ = 0; offsetZ < 4; offsetZ++) {
 						int localX = startX + offsetX;
 						int localZ = startZ + offsetZ;
 						BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
@@ -221,7 +231,8 @@ public abstract class CaveCarverControllerMixin {
 							int surfaceAltitude = surfaceAltitudes[localX][localZ];
 							IBlockState liquidBlock = liquidBlocks[localX][localZ];
 							float caveRegionNoise = this.caveRegionController.GetNoise((float)colPos.getX(), (float)colPos.getZ());
-							for(CarverNoiseRange range : this.noiseRanges) {
+							for(int rangeIndex = 0; rangeIndex < this.noiseRanges.size(); rangeIndex++) {
+								CarverNoiseRange range = this.noiseRanges.get(rangeIndex);
 								if(range.contains(caveRegionNoise)) {
 									if(range.getCarver() instanceof CaveCarver) {
 										CaveCarver carver = (CaveCarver)range.getCarver();
@@ -235,11 +246,11 @@ public abstract class CaveCarverControllerMixin {
 											topY = 128;
 											maxHeight = 128;
 										}
-										if(range.getNoiseCube() == null) {
-											range.setNoiseCube(carver.getNoiseGen().interpolateNoiseCube(startPos, endPos, bottomY, maxHeight));
+										if(noiseCubes[rangeIndex] == null) {
+											noiseCubes[rangeIndex] = ((ICaveCarver)carver).noisethreader$getNoiseGenNew().interpolateNoiseCube(startPosX, startPosZ, endPosX, endPosZ, bottomY, maxHeight);
 										}
-										NoiseColumn noiseColumn = range.getNoiseCube().get(offsetX).get(offsetZ);
-										carver.carveColumn(primer, colPos, topY, noiseColumn, liquidBlock, flooded);
+										NoiseColumnNew noiseColumn = noiseCubes[rangeIndex].getArray(offsetX)[offsetZ];
+										((ICaveCarver)carver).noisethreader$carveColumnNew(primer, colPos, topY, noiseColumn, liquidBlock, flooded);
 										break;
 									}
 									if(range.getCarver() instanceof VanillaCaveCarver) {

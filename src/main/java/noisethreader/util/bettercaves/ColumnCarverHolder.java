@@ -1,6 +1,5 @@
-package noisethreader.util;
+package noisethreader.util.bettercaves;
 
-import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 
@@ -9,11 +8,11 @@ public class ColumnCarverHolder {
 	public final int carverIndex;
 	public final BlockPos colPos;
 	public final int topY;
-	public final NoiseColumn noiseColumn;
+	public final NoiseColumnNew noiseColumn;
 	public final IBlockState liquidBlock;
 	public final boolean flooded;
 	
-	public ColumnCarverHolder(int carverIndex, BlockPos colPos, int topY, NoiseColumn noiseColumn, IBlockState liquidBlock, boolean flooded) {
+	public ColumnCarverHolder(int carverIndex, BlockPos colPos, int topY, NoiseColumnNew noiseColumn, IBlockState liquidBlock, boolean flooded) {
 		this.carverIndex = carverIndex;
 		this.colPos = colPos;
 		this.topY = topY;

@@ -6,7 +6,10 @@
   "target": "@env(DEFAULT)",
   "minVersion": "0.8",
   "mixins": [
-    "bettercaves.CaveCarverControllerMixin"
+    "bettercaves.CaveCarverControllerMixin",
+    "bettercaves.CaveCarverMixin",
+    "bettercaves.CavernCarverControllerMixin",
+    "bettercaves.CavernCarverMixin"
   ],
   "injectors": {
     "maxShiftBy": 10
