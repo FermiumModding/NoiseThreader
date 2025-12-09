@@ -11,6 +11,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraftforge.common.BiomeDictionary;
 import noisethreader.NoiseThreader;
+import noisethreader.handlers.ForgeConfigHandler;
 import noisethreader.util.bettercaves.ColumnCarverHolder;
 import noisethreader.util.bettercaves.ICaveCarver;
 import noisethreader.util.bettercaves.NoiseColumnNew;
@@ -57,6 +58,12 @@ public abstract class CaveCarverControllerMixin {
 	@Overwrite(remap = false)
 	public void carveChunk(ChunkPrimer primer, int chunkX, int chunkZ, int[][] surfaceAltitudes, IBlockState[][] liquidBlocks) {
 		if(noiseRanges.isEmpty() && !isSurfaceCavesEnabled) return;
+		
+		if(!ForgeConfigHandler.server.multithreadBetterCavesNoise) {
+			//Allow for just utilizing the improved performance of the rewrite without multithreading
+			this.noisethreader$carveChunkOriginal(primer, chunkX, chunkZ, surfaceAltitudes, liquidBlocks);
+			return;
+		}
 		
 		this.noisethreader$shouldCarveVanillaCaves = false;
 		this.noisethreader$vanillaCarvingMask = new boolean[16][16];

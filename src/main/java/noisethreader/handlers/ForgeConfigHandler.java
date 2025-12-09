@@ -20,6 +20,11 @@ public class ForgeConfigHandler {
 		@Config.Name("Thread Pool Minimum Size")
 		@Config.RangeInt(min = 1)
 		public int threadPoolMinimumSize = 4;
+		
+		@Config.Comment("If NoiseThreader should multithread BetterCaves noise generation" + "\n" +
+				"If false, NoiseThreader will still optimize BetterCaves generation in general")
+		@Config.Name("Multithread BetterCaves Noise Generation")
+		public boolean multithreadBetterCavesNoise = true;
 	}
 
 	@Mod.EventBusSubscriber(modid = NoiseThreader.MODID)
