@@ -16,6 +16,7 @@ public class NoiseThreaderPlugin implements IFMLLoadingPlugin {
 		FermiumRegistryAPI.enqueueMixin(false, "mixins.noisethreader.vanilla.json");
 		FermiumRegistryAPI.enqueueMixin(false, "mixins.noisethreader.vanilla.cache.json", () -> FermiumRegistryAPI.isModPresent("bettercaves"));
 		FermiumRegistryAPI.enqueueMixin(true, "mixins.noisethreader.otg.json", () -> Loader.isModLoaded("openterraingenerator"));
+		FermiumRegistryAPI.enqueueMixin(true, "mixins.noisethreader.otg.cache.json", () -> (Loader.isModLoaded("openterraingenerator") && Loader.isModLoaded("bettercaves")));
 		FermiumRegistryAPI.enqueueMixin(true, "mixins.noisethreader.bettercaves.json", () -> Loader.isModLoaded("bettercaves"));
 	}
 

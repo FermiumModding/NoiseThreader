@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 @Mod(modid = NoiseThreader.MODID, version = NoiseThreader.VERSION, name = NoiseThreader.NAME, dependencies = "required-after:fermiumbooter; after:openterraingenerator", acceptableRemoteVersions = "*")
 public class NoiseThreader {
     public static final String MODID = "noisethreader";
-    public static final String VERSION = "1.1.2";
+    public static final String VERSION = "1.1.3";
     public static final String NAME = "NoiseThreader";
     public static final Logger LOGGER = LogManager.getLogger();
 	
